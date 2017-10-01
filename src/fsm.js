@@ -4,6 +4,8 @@ class FSM {
         this.currentState = config.initial;
         this.historyOfStates = [this.currentState];
         this.arrStates = ['normal', 'busy', 'hungry', 'sleeping'];
+        this.countOfAddStates = 0;
+        this.triggerOn = 0;
     }
 
     getState() {
@@ -36,26 +38,32 @@ class FSM {
         if (this.currentState === 'normal' && event === 'study') {
             this.currentState = 'busy';
             this.historyOfStates.push(this.currentState);
+            this.triggerOn = 1;
         }
         if (this.currentState === 'busy' && event === 'get_tired') {
             this.currentState = 'sleeping';
             this.historyOfStates.push(this.currentState);
+            this.triggerOn = 1;
         }
         if (this.currentState === 'busy' && event === 'get_hungry') {
             this.currentState = 'hungry';
             this.historyOfStates.push(this.currentState);
+            this.triggerOn = 1;
         }
         if (this.currentState === 'sleeping' && event === 'get_up') {
             this.currentState = 'normal';
             this.historyOfStates.push(this.currentState);
+            this.triggerOn = 1;
         }
         if (this.currentState === 'sleeping' && event === 'get_hungry') {
             this.currentState = 'hungry';
             this.historyOfStates.push(this.currentState);
+            this.triggerOn = 1;
         }
         if (this.currentState === 'hungry' && event === 'eat') {
             this.currentState = 'normal';
             this.historyOfStates.push(this.currentState);
+            this.triggerOn = 1;
         }
     }
 
@@ -63,7 +71,7 @@ class FSM {
      * Resets FSM state to initial.
      */
     reset() {
-        this.currentState = 'normal'
+        this.currentState = 'normal';
         this.historyOfStates = [this.currentState];
     }
 
@@ -101,7 +109,6 @@ class FSM {
             this.arrStates = [];
             return this.arrStates;
         }
-
     }
 
     /**
@@ -109,19 +116,41 @@ class FSM {
      * Returns false if undo is not available.
      * @returns {Boolean}
      */
-    undo() {}
+    undo() {
+        if (this.historyOfStates.length > 1 && this.countOfAddStates === 0) {
+            //this.undo = this.historyOfStates[(historyOfStates.length-1) - 1];
+            this.countOfAddStates++;
+            this.triggerOn = 0;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
     /**
      * Goes redo to state.
      * Returns false if redo is not available.
      * @returns {Boolean}
      */
-    redo() {}
+    redo() {
+        if (this.countOfAddStates === 0 && this.triggerOn === 0) {
+            return false;
+        }
+        else {
+            this.countOfAddStates--;
+            return true;
+        }
+    }
 
     /**
      * Clears transition history
      */
     clearHistory() {
+        this.currentState = 'normal';
+        this.historyOfStates = [this.currentState];
+        this.countOfAddStates = 0;
+        this.triggerOn = 0;
     }
 }
 
